@@ -1,112 +1,122 @@
-// import { UserBusiness }  from "../src/business/UserBusiness";
-// import { UserDatabase } from "../src/data/UserDatabase";
-// import { HashMockGenerator } from "./mocks/hashGeneratorMock";
-// import { IdGeneratorMock } from "./mocks/idGeneratorMock";
-// import { TokenGeneratorMock } from "./mocks/tokenGeneratorMock";
-// import { UserDatabaseMock } from "./mocks/userDatabaseMock";
-
-// const userBusinessMock = new UserBusiness(
-//     new IdGeneratorMock(),
-//     new HashMockGenerator(),
-//     new TokenGeneratorMock(),
-//     new UserDatabaseMock() as UserDatabase
-// )
-
-// describe("Testando o signup", () => {
-//     test("Dever retornar erro quando o nome está vazio", async () => {
-//         try {
-//             await userBusinessMock.signup("", "vitor@email.com", "123456", "normal")
-//         } catch(error: any) {
-//             expect(error.message).toEqual("Missing input")
-//             expect(error.statusCode).toBe(422)
-//         } finally {
-//             expect.assertions(2)
-//         }
-//     })
-
-//     test("Deve retornar erro quando o email é inválido (nao tem arroba)", async () => {
-//         try {
-//             await userBusinessMock.signup("Vitor", "vitoremail.com", "123456", "normal")
-//         } catch(error: any) {
-//             expect(error.message).toEqual("Invalid email")
-//             expect(error.statusCode).toBe(422)
-//         } finally {
-//             expect.assertions(2)
-//         }
-//     })
-
-//     test("Deve retornar erro quando senha inválida", async () => {
-//         try {
-//             await userBusinessMock.signup("Vitor", "vitor@email.com", "12345", "normal")
-//         } catch(error: any) {
-//             expect(error.message).toEqual("Invalid password")
-//             expect(error.statusCode).toBe(422)
-//         } finally {
-//             expect.assertions(2)
-//         }
-//     })
-
-//     test("Deve retornar erro qndo recebe uma role não existente", async () => {
-//         try {
-//             await userBusinessMock.signup("Vitor", "vitor@email.com", "123456", "batata")
-//         } catch(error: any) {
-//             expect(error.message).toEqual("Invalid user role")
-//             expect(error.statusCode).toBe(422)
-//         } finally {
-//             expect.assertions(2)
-//         }
-//     })
-
-//     test("Sucesso no cadastro", async () => {
-//         try {
-//             const {accessToken} = await userBusinessMock.signup("Vitor", "vitor@email.com", "123456", "NORMAL")
-//             expect(accessToken).toEqual("token")
-//         } catch(error: any) {
-//             console.log(error)
-//         } finally {
-//             expect.assertions(1)
-//         }
-//     })
-// })
+import { UserDataBase } from './../src/data/UserDataBase';
+import { TokenGeneratorMock } from './mocks/tokenGeneratorMock';
+import { UserBusiness } from "../src/business/UserBusiness";
+import { HashGeneratorMock } from "./mocks/hashGeneratorMock";
+import { IdGeneratorMock } from "./mocks/idGeneratorMock";
+import UserDatabaseMock from "./mocks/UserDataBaseMock";
+import { USER_ROLES } from '../src/model/User';
 
 
-// describe("testes no login", () => {
-//     test("Deve retornar erro quando o email fornecido não existe", async () => {
-//         try {
-//             await userBusinessMock.login("batata@email.com", "123456")
-//         } catch(error: any) {
-//             // console.log(error)
-//             expect(error.message).toEqual("Invalid credentials")
-//             expect(error.statusCode).toBe(401)
-//         } finally {
-//             expect.assertions(2)
-//         }
-//     })
+const userBusinessMock = new UserBusiness(
+    new IdGeneratorMock(),
+    new HashGeneratorMock(),
+    new TokenGeneratorMock(),
+    new UserDatabaseMock() as UserDataBase
+)
 
-//     test("Deve retornar erro quando a senha está errada", async () => {
-//         try {
-//             await userBusinessMock.login("user2@gmail.com", "123456")
-//         } catch(error: any) {
-//             // console.log(error)
-//             expect(error.message).toEqual("Invalid credentials")
-//             expect(error.statusCode).toBe(401)
-//         } finally {
-//             expect.assertions(2)
-//         }
-//     })
+describe("Testando o signup", () => {
+    test("Should return error when name is empty", async () => {
+        try {
+            await userBusinessMock.createUser({
+                name: "",
+                email: "vitor@email.com",
+                password: "123456",
+                role: USER_ROLES.NORMAL
+            })
+        } catch (error: any) {
+            expect(error.message).toEqual("Please, fill in all fields!")
+        } finally {
+            expect.assertions(1)
+        }
+    })
+
+    test("Should return error when invalid email (@ missing)", async () => {
+        try {
+            await userBusinessMock.createUser({
+                name: "Vitor",
+                email: "vitoremail.com",
+                password: "123456",
+                role: USER_ROLES.NORMAL
+            })
+        } catch (error: any) {
+            expect(error.message).toEqual("Invalid email!")
+        } finally {
+            expect.assertions(1)
+        }
+    })
+
+    test("Should return error if password is invalid(less than 6 characters)", async () => {
+        try {
+            await userBusinessMock.createUser({
+                name: "Vitor",
+                email: "vitor@email.com",
+                password: "12345",
+                role: USER_ROLES.NORMAL
+            })
+        } catch (error: any) {
+            expect(error.message).toEqual("Invalid password!")
+        } finally {
+            expect.assertions(1)
+        }
+    })
 
 
-//     test("Sucesso no login", async () => {
-//         try {
-//             const {accessToken} = await userBusinessMock.login("user1@gmail.com", "user1password")
-//             expect(accessToken).toEqual("token")
+    test("Success registering", async () => {
+        try {
+            const { accessToken } = await userBusinessMock.createUser({
+                name: "Vitor",
+                email: "vitor@email.com",
+                password: "123456",
+                role: USER_ROLES.NORMAL
+            })
+            expect(accessToken).toEqual("token")
+        } catch (error: any) {
+            console.log(error)
+        }
+    })
 
-//         } catch(error: any) {
-//             console.log(error)
-//             // expect(error.message).toEqual("Invalid credentials")
-//             // expect(error.statusCode).toBe(401)
-//         } finally {
-//             expect.assertions(1)
-//         }
-//     })
-// })
+})
+
+
+describe("testes no login", () => {
+    test("Should return an error if email provided doesn't exist", async () => {
+        try {
+            await userBusinessMock.login({
+                email: "batata@email.com",
+                password: "123456"
+            })
+        } catch (error: any) {
+            expect(error.message).toEqual("Invalid credentials!")
+        } finally {
+            expect.assertions(1)
+        }
+    })
+
+    test("Should return an error if invalid password", async () => {
+        try {
+            await userBusinessMock.login({
+                email: "user2@gmail.com",
+                password: "1234567"
+            })
+        } catch (error: any) {
+            expect(error.message).toEqual("Invalid credentials!")
+        } finally {
+            expect.assertions(1)
+        }
+    })
+
+
+    test("Login success", async () => {
+        try {
+            const accessToken = await userBusinessMock.login({
+                email: "user1@gmail.com",
+                password: "user1password"
+            })
+            expect(accessToken).toEqual("token")
+
+        } catch (error: any) {
+            console.log(error)
+        }
+    })
+
+})

@@ -1,50 +1,63 @@
-import { UserDataBase } from './../src/data/UserDataBase';
-// import { TokenGeneratorMock, IdGeneratorMock } from './mocks/idGeneratorMock';
-// import { UserBusiness } from './../src/business/UserBusiness';
-// import { BandMockNormal } from './BandMock';
-// import { BandBusiness } from './../src/business/BandBusiness';
-import { HashMockGenerator } from './mocks/hashGeneratorMock';
-import { UserDatabaseMock } from './mocks/UserDataBaseMock';
+import { BandBusiness } from './../src/business/BandBusiness';
+import { BandDataBase } from './../src/data/BandDataBase';
+import { BandDataBaseMocks } from './mocks/BandDataBaseMock';
+import { TokenGeneratorMock } from './mocks/tokenGeneratorMock';
+import { IdGeneratorMock } from "./mocks/idGeneratorMock";
+import { HashGeneratorMock } from './mocks/hashGeneratorMock';
 
 
-// const bandBusinessMock = new BandBusiness(
-//     new IdGeneratorMock(),
-//     new HashMockGenerator(),
-//     new TokenGeneratorMock(),
-//     new UserDatabaseMock as UserDataBase
-// )
-// 'puxando' o userBusiness do src onde estão todas as funções.
+const bandBusinessMock = new BandBusiness(
+    new IdGeneratorMock(),
+    new HashGeneratorMock(),
+    new TokenGeneratorMock(),
+    new BandDataBaseMocks() as BandDataBase
+)
+// 'puxando' o bandBusiness do src onde estão todas as funções.
 
 
-describe('Testing register band', () => {
-
-    test('success', async () => {
-
-        const input = {
-            name: 'poesia acustica 9',
-            music_genre: 'rap',
-            responsible: 'chris mc',
-            auth: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhjNDRjNDExLTUyODItNDMyNi1hYTQ3LTc2ODIxYTNjMTQxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY1NzgxMDY2NiwiZXhwIjoxNjU3ODI4NjY2fQ.b7tb61BH0wVgT9WPr6I2NKHq_juXwfNXBNHHDwbBOoc'
-        }
-
-        // const result = await new BandBusiness().signupBand(input)
-        expect(input.name.length).toBeGreaterThan(5)
-        expect(input).toHaveProperty('music_genre')
-    })
-
+describe("Testing about band", () => {
 
     test("expecting error if it receives empty parameter", async () => {
         try {
-            // await userBusinessMock.signup("", "vitor@email.com", "123456", "normal")
-            // await new BandBusinessMock().signupBand("", "", "", "")
+            await bandBusinessMock.signupBand({
+                name: "poesia acustica 2",
+                music_genre: '',
+                responsible: 'delacruz',
+                auth: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhjNDRjNDExLTUyODItNDMyNi1hYTQ3LTc2ODIxYTNjMTQxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY1NzkwMTI5NiwiZXhwIjoxNjU3OTE5Mjk2fQ.f2OxEa-fFb9tiYW_p2sXsqMcbcgdFZpl6K1amKfa3U8'
+            })
         } catch (error: any) {
-            expect(error.message).toEqual("Fill in the fields correctly")
-            expect(error.statusCode).toBe(422)
+            expect(error.message).toEqual("Fill in the fields correctly!")
         } finally {
-            expect.assertions(2)
+            expect.assertions(1)
+        }
+    })
+
+    test("Should return an error if id provided is invalid", async () => {
+        try {
+            await bandBusinessMock.getBandById({
+                id: '',
+                auth: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhjNDRjNDExLTUyODItNDMyNi1hYTQ3LTc2ODIxYTNjMTQxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY1NzkwMTI5NiwiZXhwIjoxNjU3OTE5Mjk2fQ.f2OxEa-fFb9tiYW_p2sXsqMcbcgdFZpl6K1amKfa3U8'
+            })
+        } catch (error: any) {
+            expect(error.message).toEqual("Please, enter the band id you want to search!")
+        } finally {
+            expect.assertions(1)
+        }
+    })
+
+    test("Success registering band", async () => {
+        try {
+            await bandBusinessMock.signupBand({
+                name: "poesia acustica 2",
+                music_genre: 'rap',
+                responsible: 'delacruz',
+                auth: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhjNDRjNDExLTUyODItNDMyNi1hYTQ3LTc2ODIxYTNjMTQxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY1NzkwMTI5NiwiZXhwIjoxNjU3OTE5Mjk2fQ.f2OxEa-fFb9tiYW_p2sXsqMcbcgdFZpl6K1amKfa3U8'
+            })
+        } catch (error: any) {
+
         }
     })
 
 
-    
+
 })

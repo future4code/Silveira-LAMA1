@@ -1,21 +1,38 @@
+import { IdGenerator } from './../services/IdGenerator';
 import { loginInputDTO } from './../types/loginInputDTO';
 import { UserDataBase } from './../data/UserDataBase';
-import { HashManager } from './../services/HashManager';
-import { IdGenerator } from "../services/IdGenerator";
+import HashManager from '../services/HashManager';
 import { signupInputDTO } from './../types/signupInputDTO';
 import User from '../model/User';
 import Authenticator from '../services/Authenticator';
 
 
 export class UserBusiness {
+    constructor(
+        private idGenerator: IdGenerator,
+        private hashManager: HashManager,
+        private tokenGenerator: Authenticator,
+        private userDataBase: UserDataBase
+    ) {}
 
     public async createUser(input: signupInputDTO): Promise<any> {
         try {
             const { name, password, email, role } = input
             // campos que serão preenchidos no body da requisição
+            if (email.indexOf("@") === -1) {
+                throw new Error("Invalid email!");
+             }
+
+             if (!name || !password || !email || !role) {
+                throw new Error("Please, fill in all fields!");
+             }
+
+             if (password.length < 6) {
+                throw new Error("Invalid password!");
+             }
             const id = new IdGenerator().generateId()
             // função que gera o id automático
-            const hashPassword = new HashManager().createHash(password)
+            const hashPassword = await new HashManager().hash(password)
             // função que guarda a senha 'hasheada' no banco de dados
             const newUser: User = new User(
                 id,
@@ -43,12 +60,22 @@ export class UserBusiness {
         try {
             const { email, password } = input
 
+            
+         if (email.indexOf("@") === -1) {
+            throw new Error("Invalid email!");
+            
+         }
+
             const user = {
                 email,
                 password
             }
 
-            const login = await new UserDataBase().login(user.email)
+            const login = await new UserDataBase().login(email)
+            
+            if (!login) {
+                throw new Error("Invalid credentials!")
+            }
 
             const hashManager: HashManager = new HashManager()
 
@@ -67,7 +94,7 @@ export class UserBusiness {
                 id: login.id,
                 role: login.role
             })
-        
+
             return token
         } catch (error: any) {
             throw new Error(error.message || "Error to login. Please check your system administrator.");

@@ -2,7 +2,7 @@ import { getShowByDayInputDTO } from './../types/getShowByDayInputDTO';
 import { ShowBusiness } from './../business/ShowsBusiness';
 import { showInputDTO } from './../types/showInputDTO';
 import { Request, Response } from "express"
-import Show from '../model/Show';
+
 
 
 export class ShowController {

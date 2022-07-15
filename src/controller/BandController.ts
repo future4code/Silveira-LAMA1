@@ -2,6 +2,10 @@ import { getBandByIdInputDTO } from './../types/getBandByIdinputDTO';
 import { Request, Response } from "express";
 import { BandBusiness } from "../business/BandBusiness";
 import { signupbandInputDTO } from "../types/signupbandInputDTO";
+import { BandDataBase } from '../data/BandDataBase';
+import { IdGenerator } from '../services/IdGenerator';
+import HashManager from '../services/HashManager';
+import Authenticator from '../services/Authenticator';
 
 export default class BandController {
     public async createBand(req: Request, res: Response) {
@@ -16,7 +20,7 @@ export default class BandController {
                 responsible,
                 auth
             }
-            await new BandBusiness().signupBand(input)
+            await new BandBusiness(new IdGenerator(), new HashManager(), new Authenticator(), new BandDataBase()).signupBand(input)
             res.status(201).send({message: "Band registered sucessfully"})
         } catch (error: any) {
             res.status(400).send({ message: error.message })
@@ -33,7 +37,7 @@ export default class BandController {
                 auth
             }
 
-            const band = await new BandBusiness().getBandById(getBand)
+            const band = await new BandBusiness(new IdGenerator(), new HashManager(), new Authenticator(), new BandDataBase()).getBandById(getBand)
             res.status(200).send({ message: "Success!", band:band })
         } catch (error: any) {
               res.status(400).send({ message: error.message })

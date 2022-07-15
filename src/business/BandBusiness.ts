@@ -1,15 +1,22 @@
+import { BandDataBase } from './../data/BandDataBase';
 import { getBandByIdInputDTO } from './../types/getBandByIdinputDTO';
-import { BandDataBase } from '../data/BandDataBase';
 import Band from '../model/Band';
 import { USER_ROLES } from '../model/User';
 import Authenticator from '../services/Authenticator';
-import { HashManager } from './../services/HashManager';
 import { IdGenerator } from './../services/IdGenerator';
 import { signupbandInputDTO } from './../types/signupbandInputDTO';
+import HashManager from '../services/HashManager';
 
 
 
 export class BandBusiness {
+    constructor(
+        private idGenerator: IdGenerator,
+        private hashManager: HashManager,
+        private tokenGenerator: Authenticator,
+        private BandDataBase: BandDataBase
+    ) { }
+
     public async signupBand(input: signupbandInputDTO) {
         try {
             const { name, music_genre, responsible, auth } = input
@@ -20,7 +27,7 @@ export class BandBusiness {
             }
 
             if (!name || !music_genre || !responsible) {
-                throw new Error("Fill in the fields correctly");
+                throw new Error("Fill in the fields correctly!");
             }
             const id = new IdGenerator().generateId()
 
@@ -41,7 +48,7 @@ export class BandBusiness {
 
     public async getBandById(input: getBandByIdInputDTO) {
         try {
-            const { id, auth } = input 
+            const { id, auth } = input
             const compareToken = new Authenticator().getData(auth)
 
             if (!compareToken) {
@@ -54,15 +61,15 @@ export class BandBusiness {
 
             const searchBand = await new BandDataBase().getBandById(id)
 
-            
-            const band ={
+
+            const band = {
                 id: searchBand.id,
                 name: searchBand.name,
                 music_genre: searchBand.music_genre,
                 responsible: searchBand.responsible
-            } 
-            return band 
-            
+            }
+            return band
+
         } catch (error: any) {
             throw new Error(error.message || "Error. Please check your system administrator.");
         }

@@ -1,5 +1,5 @@
-export class HashMockGenerator {
-    public hash = async (s: string): Promise<any> => {
+export class HashGeneratorMock {
+    public hash = async (s: string) => {
         return "hash"
     }
 
